@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../../context/AuthContext';
 
 // ProtectedRoute: Blocks guests from viewing the Dashboard
 export const ProtectedRoute = () => {

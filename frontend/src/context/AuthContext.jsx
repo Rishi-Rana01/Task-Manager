@@ -40,18 +40,18 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axiosClient.post('/auth/register', { name, email, password });
       const { data } = response.data;
-      
+
       localStorage.setItem('task_app_token', data.token);
       localStorage.setItem('task_app_user', JSON.stringify({ name: data.name, email: data.email }));
-      
+
       setToken(data.token);
       setUser({ name: data.name, email: data.email });
       setIsAuthenticated(true);
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Registration failed. Try again.' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Registration failed. Try again.'
       };
     } finally {
       setLoading(false);
@@ -63,18 +63,18 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axiosClient.post('/auth/login', { email, password });
       const { data } = response.data;
-      
+
       localStorage.setItem('task_app_token', data.token);
       localStorage.setItem('task_app_user', JSON.stringify({ name: data.name, email: data.email }));
-      
+
       setToken(data.token);
       setUser({ name: data.name, email: data.email });
       setIsAuthenticated(true);
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Invalid email credentials or password.' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Invalid email credentials or password.'
       };
     } finally {
       setLoading(false);
