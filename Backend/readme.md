@@ -1,11 +1,12 @@
-# Task Manager Backend - API Service (Day 1)
+# Task Manager Backend - API Service
 
 A robust, secure, and production-ready RESTful API backend for the **Task Manager** application. Built using the modern Node.js ecosystem, Express.js framework, and MongoDB for persistent storage, this service provides user authentication, session security, and complete CRUD functionality for task management.
 
 ---
 
-## 🚀 Key Features Implemented (Day 1)
+## 📅 Day-by-Day Development Summary
 
+### 📂 Day 1: Core API Architecture & CRUD Operations
 *   **Robust User Authentication:**
     *   Secure registration and login flows.
     *   State-of-the-art password security with automatic salting and hashing (using `bcryptjs` with `12` salt rounds) via Mongoose pre-save middleware.
@@ -21,13 +22,16 @@ A robust, secure, and production-ready RESTful API backend for the **Task Manage
 
 ---
 
-## 🛠️ Tech Stack & Dependencies
-
-*   **Runtime:** [Node.js](https://nodejs.org/) (ES6+ Module Syntax)
-*   **Framework:** [Express.js](https://expressjs.com/) (v5.x)
-*   **Database ODM:** [Mongoose / MongoDB](https://mongoosejs.com/)
-*   **Security & Encryption:** [Bcrypt.js](https://github.com/dcodeIO/bcrypt.js) & [JSON Web Tokens (JWT)](https://jwt.io/)
-*   **Utilities & Tooling:** [CORS](https://github.com/expressjs/cors), [Dotenv](https://github.com/motdotla/dotenv), [Morgan](https://github.com/expressjs/morgan), [Nodemon](https://nodemon.io/) (Dev environment auto-reload)
+### 📂 Day 2: Telemetry, Bug Fixes & Refined Error States
+*   **Mongoose Pre-Save Hook Resolution (`User.js`):**
+    *   Refactored the async pre-save hook to remove the deprecated `next` callback. By adhering to Mongoose 6+ specifications for asynchronous middleware, this resolves the `TypeError: next is not a function` error that previously occurred during registration.
+*   **Extended Global Error Middleware (`errorMiddleware.js`):**
+    *   **Mongoose ValidationError Handler:** Dynamically catches schema validation faults and returns a clean, concatenated bad request (`400`) response of field-specific error messages.
+    *   **Duplicate Key Exception Handler (`code 11000`):** Intercepts unique constraint violations (e.g., trying to register an already existing email address) and responds gracefully with a `400 Bad Request` instead of triggering a generic `500 Server Error`.
+*   **Telemetry & Error Logging (`authController.js`):**
+    *   Integrated standard error logging (`console.error`) inside the authentication controllers for better visibility and server debugging.
+*   **Server Cleanup (`server.js`):**
+    *   Removed redundant, inactive db config imports.
 
 ---
 
@@ -38,14 +42,14 @@ Backend/
 ├── config/
 │   └── db.js                 # MongoDB connection logic using Mongoose
 ├── controllers/
-│   ├── authController.js     # User registration and authentication handlers
-│   └── taskController.js     # CRUD handlers for task management
+│   ├── authController.js     # User registration and authentication handlers (w/ Day 2 error logging)
+│   └── taskController.js     # CRUD handlers for task management (Day 1)
 ├── middleware/
-│   ├── authMiddleware.js     # JWT verification and route protection
-│   └── errorMiddleware.js    # Global centralized error handler
+│   ├── authMiddleware.js     # JWT verification and route protection (Day 1)
+│   └── errorMiddleware.js    # Enhanced global centralized error handler (Enhanced Day 2)
 ├── models/
-│   ├── Task.js               # Mongoose schema for Tasks (relational pointer to User)
-│   └── User.js               # Mongoose schema for Users (password hooks & methods)
+│   ├── Task.js               # Mongoose schema for Tasks (Day 1)
+│   └── User.js               # Mongoose schema for Users (Refactored Day 2)
 ├── routes/
 │   ├── authRoutes.js         # Routes mapping for authentication (/api/auth/*)
 │   └── taskRoutes.js         # Secured routes mapping for tasks (/api/tasks/*)
@@ -53,7 +57,7 @@ Backend/
 ├── .gitignore                # Specifies intentionally untracked files to ignore
 ├── package.json              # Dependency manifests and execution scripts
 ├── readme.md                 # Project documentation (this file)
-└── server.js                 # Main application entry point
+└── server.js                 # Main application entry point (Cleaned Day 2)
 ```
 
 ---
@@ -225,7 +229,7 @@ Ensure you have the following installed:
 *   [MongoDB](https://www.mongodb.com/try/download/community) (Or a MongoDB Atlas Cloud Cluster account)
 
 ### 2. Environment Configurations
-Create a `.env` file in the root of the `Backend/` directory and populate it with the following configuration options:
+Create a `.env` file in the root of the `Backend/` directory:
 ```ini
 PORT=5000
 MONGO_URI=your_mongodb_connection_uri
@@ -249,8 +253,4 @@ npm install
     npm start
     ```
 
-The server will initialize and listen on the configured port (default is `5000`). Look out for the confirmation logs:
-```text
-MongoDB connected: <host_name>
-Active on port 5000 in [development]
-```
+The server will initialize and listen on the configured port (default is `5000`).
