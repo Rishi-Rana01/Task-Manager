@@ -11,8 +11,8 @@ export const registerUser = async (req, res, next) => {
     const userExists = await User.findOne({ email });
 
     if (userExists) {
-      res.status(400);
-      throw new Error('This user authorization identifier is already mapped globally');
+      res.status(400); 
+      return next(new Error('This email address is already registered to another account.')); 
     }
 
     const user = await User.create({ name, email, password });
@@ -26,6 +26,7 @@ export const registerUser = async (req, res, next) => {
       }
     });
   } catch (error) {
+    console.error('Register error:', error);
     next(error);
   }
 };

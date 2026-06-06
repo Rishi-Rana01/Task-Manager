@@ -26,7 +26,7 @@ export default function Register() {
         }
 
         setIsSubmitting(true);
-        const result = await register(formData.name, formData.formData.email, formData.password);
+        const result = await register(formData.name, formData.email, formData.password);
         setIsSubmitting(false);
 
         if (result.success) {
@@ -65,7 +65,7 @@ export default function Register() {
                             <input
                                 type="text"
                                 className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition-all duration-200"
-                                placeholder="John Doe"
+                                placeholder="Full Name"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             />
@@ -79,7 +79,7 @@ export default function Register() {
                             <input
                                 type="email"
                                 className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition-all duration-200"
-                                placeholder="john@example.com"
+                                placeholder="EMAIL-ADDRESS"
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             />
