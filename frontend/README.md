@@ -33,6 +33,21 @@ A modern, highly responsive React client interface for the **Task Manager** appl
 
 ---
 
+### 📂 Day 3: Task Management Dashboard & Workspace Components
+*   **Workspace Central Dashboard (`Dashboard.jsx`):**
+    *   Integrates with the `AuthContext` to fetch and show user-specific profile parameters.
+    *   Implements real-time workspace metrics: Assigned Backlog (total task count), Completed Segments (completed task count), and Awaiting Execution (pending task count).
+    *   Implements interactive status filtering tabs (`All`, `Pending`, `Completed`).
+    *   Implements client-side live search filtering on task titles and descriptions.
+*   **Reusable Task Components (`TaskCard.jsx` & `TaskModal.jsx`):**
+    *   `TaskCard`: Modern UI card with hover actions (edit, delete, toggle status), completion state styling (strike-through, dimmed background), and task metadata display (status badge, calendar date).
+    *   `TaskModal`: A clean, responsive modal window for initiating new tasks or editing existing ones, complete with input validation, backdrop blur overlays, and keyframe scale/fade animations.
+*   **Dynamic API Operations & Feedbacks:**
+    *   Integrates Axios endpoints for fetching tasks, adding new tasks, modifying existing task parameters (title, description, status), and removing task resources (with confirm dialog protection).
+    *   Leverages `react-hot-toast` for micro-animated client feedback alerts on all successful/failed CRUD state transitions.
+
+---
+
 ## 📂 Architecture & Directory Structure
 
 ```text
@@ -41,13 +56,16 @@ frontend/
 │   ├── api/
 │   │   └── axiosClient.js     # Configured Axios client with automatic request interceptors (Day 2)
 │   ├── components/
-│   │   └── RouteGuards.jsx    # ProtectedRoute and PublicOnlyRoute components (Day 2)
+│   │   ├── RouteGuards.jsx    # ProtectedRoute and PublicOnlyRoute components (Day 2)
+│   │   ├── TaskCard.jsx       # Interactive task item component displaying task state (Day 3)
+│   │   └── TaskModal.jsx      # Modal form component for creating and editing tasks (Day 3)
 │   ├── context/
 │   │   └── AuthContext.jsx    # Centralized JWT authentication provider & custom hooks (Day 2)
 │   ├── pages/
+│   │   ├── Dashboard.jsx      # Interactive user task management workspace page (Day 3)
 │   │   ├── Login.jsx          # Login portal page with validation and state integration (Day 2)
 │   │   └── Register.jsx       # User registration page with safety guidelines (Day 2)
-│   ├── App.jsx                # Main client router, route mappings, and global providers (Day 2)
+│   ├── App.jsx                # Main client router, route mappings, and global providers (Updated Day 3)
 │   ├── index.css              # Main global stylesheets and Tailwind directives (Day 1)
 │   └── main.jsx               # Entry node rendering the virtual React DOM (Day 1)
 ├── .env                       # Base URL API variables (Day 1)
