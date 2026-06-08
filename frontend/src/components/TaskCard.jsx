@@ -7,19 +7,6 @@ const PRIORITY_CONFIG = {
   low:    { label: 'Low',    bg: 'bg-green-50 dark:bg-green-900/20', text: 'text-green-600 dark:text-green-400', dot: 'bg-green-500'  },
 };
 
-function getDueDateInfo(dueDate) {
-  if (!dueDate) return null;
-  const now    = Date.now();
-  const due    = new Date(dueDate).getTime();
-  const diffMs = due - now;
-  const diffH  = diffMs / (1000 * 60 * 60);
-
-  if (diffMs < 0)       return { label: 'Overdue',        urgent: 'overdue' };
-  if (diffH <= 24)      return { label: `${Math.ceil(diffH)}h left`,    urgent: 'critical' };
-  if (diffH <= 72)      return { label: `${Math.ceil(diffH / 24)}d left`, urgent: 'warning' };
-  return { label: new Date(dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), urgent: 'normal' };
-}
-
 const DUE_COLOR = {
   overdue:  'text-red-500 dark:text-red-400',
   critical: 'text-orange-500 dark:text-orange-400',
@@ -27,19 +14,19 @@ const DUE_COLOR = {
   normal:   'text-slate-400 dark:text-slate-500',
 };
 
-/**
- * TaskCard — displays a single task with priority badge, due date countdown,
- * bulk selection checkbox, hover actions, and completion animation.
- *
- * Props:
- *   task        {object}
- *   onToggle    {(task) => void}
- *   onEdit      {(task) => void}
- *   onDelete    {(id) => void}
- *   isSelected  {boolean}
- *   onSelect    {(id) => void}
- *   selectionMode {boolean}
- */
+function getDueDateInfo(dueDate) {
+  if (!dueDate) return null;
+  const now    = Date.now();
+  const due    = new Date(dueDate).getTime();
+  const diffMs = due - now;
+  const diffH  = diffMs / (1000 * 60 * 60);
+
+  if (diffMs < 0)  return { label: 'Overdue',                                urgent: 'overdue'  };
+  if (diffH <= 24) return { label: `${Math.ceil(diffH)}h left`,              urgent: 'critical' };
+  if (diffH <= 72) return { label: `${Math.ceil(diffH / 24)}d left`,         urgent: 'warning'  };
+  return           { label: new Date(dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), urgent: 'normal' };
+}
+
 const TaskCard = memo(function TaskCard({
   task,
   onToggle,
@@ -65,7 +52,6 @@ const TaskCard = memo(function TaskCard({
         ${isSelected ? 'ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-slate-900' : ''}
       `}
     >
-      {/* Selection checkbox — visible in selection mode or on hover */}
       {(selectionMode || isSelected) && (
         <button
           onClick={() => onSelect?.(task._id)}
@@ -78,7 +64,6 @@ const TaskCard = memo(function TaskCard({
       )}
 
       <div className="flex items-start gap-4">
-        {/* Toggle Status Button */}
         <button
           onClick={() => onToggle(task)}
           className={`mt-0.5 shrink-0 transition-all duration-200 cursor-pointer ${
@@ -91,7 +76,6 @@ const TaskCard = memo(function TaskCard({
             : <Circle size={20} />}
         </button>
 
-        {/* Task Content */}
         <div className="flex-1 min-w-0">
           <h3 className={`text-sm font-semibold tracking-tight truncate transition-all duration-300 ${
             isCompleted
@@ -109,15 +93,12 @@ const TaskCard = memo(function TaskCard({
             </p>
           )}
 
-          {/* Metadata Row */}
           <div className="flex flex-wrap items-center gap-2 mt-3.5">
-            {/* Priority badge */}
             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide ${priority.bg} ${priority.text}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${priority.dot}`} />
               {priority.label}
             </span>
 
-            {/* Status badge */}
             <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide ${
               isCompleted
                 ? 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
@@ -126,18 +107,13 @@ const TaskCard = memo(function TaskCard({
               {task.status}
             </span>
 
-            {/* Due date */}
             {dueDateInfo && (
               <span className={`flex items-center gap-1 text-[10px] font-medium ${DUE_COLOR[dueDateInfo.urgent]}`}>
-                {dueDateInfo.urgent === 'overdue'
-                  ? <AlertTriangle size={10} />
-                  : <Calendar size={10} />
-                }
+                {dueDateInfo.urgent === 'overdue' ? <AlertTriangle size={10} /> : <Calendar size={10} />}
                 {dueDateInfo.label}
               </span>
             )}
 
-            {/* Created date (no dueDate) */}
             {!dueDateInfo && (
               <span className="flex items-center gap-1 text-[10px] text-slate-400 dark:text-slate-600">
                 <Calendar size={10} />
@@ -147,7 +123,6 @@ const TaskCard = memo(function TaskCard({
           </div>
         </div>
 
-        {/* Hover action buttons */}
         <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <button
             onClick={() => onEdit(task)}

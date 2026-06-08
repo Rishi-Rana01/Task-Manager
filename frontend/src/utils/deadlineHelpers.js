@@ -1,17 +1,6 @@
-/**
- * deadlineHelpers.js — utilities for detecting tasks due soon.
- */
 
 const HOUR = 60 * 60 * 1000;
 
-/**
- * Returns an array of alert objects for tasks with upcoming deadlines.
- * Ignores completed tasks and tasks without a dueDate.
- *
- * @param {Array}  tasks   — full task list
- * @param {number} now     — timestamp for "now" (default: Date.now())
- * @returns {Array} alerts — sorted by urgency (soonest first)
- */
 export function getDeadlineAlerts(tasks, now = Date.now()) {
   const WINDOW = 72 * HOUR;
 
@@ -40,9 +29,6 @@ export function getDeadlineAlerts(tasks, now = Date.now()) {
   }));
 }
 
-/**
- * Returns tasks completed today (comparing updatedAt date string).
- */
 export function getCompletedTodayCount(tasks) {
   const todayStr = new Date().toDateString();
   return tasks.filter(

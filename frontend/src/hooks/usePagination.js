@@ -1,11 +1,5 @@
 import { useState, useCallback } from 'react';
 
-/**
- * usePagination — manages pagination state for server-side paginated lists.
- *
- * @param {number} totalPages  — total number of pages (from API)
- * @returns {object} { currentPage, setTotalPages, goTo, next, prev, reset }
- */
 export function usePagination(initialTotalPages = 1) {
   const [currentPage, setCurrentPage]   = useState(1);
   const [totalPages,  setTotalPages]    = useState(initialTotalPages);

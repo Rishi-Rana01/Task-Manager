@@ -1,6 +1,5 @@
 import Task from '../models/Task.js';
 
-// GET /api/tasks?page=1&limit=10&status=all&priority=all&search=
 export const getTasks = async (req, res, next) => {
   try {
     const page     = Math.max(1, parseInt(req.query.page)  || 1);
@@ -10,9 +9,8 @@ export const getTasks = async (req, res, next) => {
     const priority = req.query.priority;
     const search   = req.query.search?.trim();
 
-    // Build filter object
     const filter = { userId: req.user._id };
-    if (status && status !== 'all')   filter.status   = status;
+    if (status   && status   !== 'all') filter.status   = status;
     if (priority && priority !== 'all') filter.priority = priority;
     if (search) {
       filter.$or = [
@@ -28,20 +26,14 @@ export const getTasks = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data:    tasks,
-      pagination: {
-        total,
-        page,
-        limit,
-        pages: Math.ceil(total / limit),
-      },
+      data: tasks,
+      pagination: { total, page, limit, pages: Math.ceil(total / limit) },
     });
   } catch (error) {
     next(error);
   }
 };
 
-// GET /api/tasks/stats  — aggregated counts for analytics dashboard
 export const getTaskStats = async (req, res, next) => {
   try {
     const userId = req.user._id;
@@ -55,7 +47,7 @@ export const getTaskStats = async (req, res, next) => {
         { $match: { userId } },
         { $group: { _id: '$priority', count: { $sum: 1 } } },
       ]),
-      // Last 7 days of completions (by updatedAt date)
+      // Completions grouped by day for the last 7 days
       Task.aggregate([
         {
           $match: {
@@ -66,9 +58,7 @@ export const getTaskStats = async (req, res, next) => {
         },
         {
           $group: {
-            _id: {
-              $dateToString: { format: '%Y-%m-%d', date: '$updatedAt' },
-            },
+            _id: { $dateToString: { format: '%Y-%m-%d', date: '$updatedAt' } },
             count: { $sum: 1 },
           },
         },
@@ -76,25 +66,18 @@ export const getTaskStats = async (req, res, next) => {
       ]),
     ]);
 
-    // Today's completions
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr       = new Date().toISOString().split('T')[0];
     const completedToday = recentCompleted.find(d => d._id === todayStr)?.count || 0;
 
     res.status(200).json({
       success: true,
-      data: {
-        byStatus:        statusStats,
-        byPriority:      priorityStats,
-        weeklyTrend:     recentCompleted,
-        completedToday,
-      },
+      data: { byStatus: statusStats, byPriority: priorityStats, weeklyTrend: recentCompleted, completedToday },
     });
   } catch (error) {
     next(error);
   }
 };
 
-// POST /api/tasks
 export const createTask = async (req, res, next) => {
   try {
     const { title, description, priority, dueDate } = req.body;
@@ -117,7 +100,6 @@ export const createTask = async (req, res, next) => {
   }
 };
 
-// PUT /api/tasks/:id
 export const updateTask = async (req, res, next) => {
   try {
     const task = await Task.findById(req.params.id);
@@ -141,7 +123,6 @@ export const updateTask = async (req, res, next) => {
   }
 };
 
-// DELETE /api/tasks/:id
 export const deleteTask = async (req, res, next) => {
   try {
     const task = await Task.findById(req.params.id);
@@ -161,7 +142,6 @@ export const deleteTask = async (req, res, next) => {
   }
 };
 
-// DELETE /api/tasks/bulk  — body: { ids: [...] }
 export const bulkDeleteTasks = async (req, res, next) => {
   try {
     const { ids } = req.body;
@@ -170,18 +150,13 @@ export const bulkDeleteTasks = async (req, res, next) => {
       throw new Error('No task IDs provided');
     }
 
-    const result = await Task.deleteMany({
-      _id: { $in: ids },
-      userId: req.user._id,
-    });
-
+    const result = await Task.deleteMany({ _id: { $in: ids }, userId: req.user._id });
     res.status(200).json({ success: true, deleted: result.deletedCount });
   } catch (error) {
     next(error);
   }
 };
 
-// PATCH /api/tasks/bulk  — body: { ids: [...], updates: { status, priority } }
 export const bulkUpdateTasks = async (req, res, next) => {
   try {
     const { ids, updates } = req.body;
@@ -190,17 +165,14 @@ export const bulkUpdateTasks = async (req, res, next) => {
       throw new Error('No task IDs provided');
     }
 
+    // Only allow status and priority to be bulk-updated
     const allowedFields = ['status', 'priority'];
-    const safeUpdates = {};
+    const safeUpdates   = {};
     for (const key of allowedFields) {
       if (updates[key] !== undefined) safeUpdates[key] = updates[key];
     }
 
-    await Task.updateMany(
-      { _id: { $in: ids }, userId: req.user._id },
-      { $set: safeUpdates }
-    );
-
+    await Task.updateMany({ _id: { $in: ids }, userId: req.user._id }, { $set: safeUpdates });
     res.status(200).json({ success: true, message: 'Tasks updated' });
   } catch (error) {
     next(error);

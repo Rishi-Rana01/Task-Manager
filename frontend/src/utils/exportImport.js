@@ -1,12 +1,4 @@
-/**
- * exportImport.js — utilities for CSV/JSON export and JSON import.
- */
 
-// ─── Export ────────────────────────────────────────────────────────────────
-
-/**
- * Trigger a file download in the browser.
- */
 function triggerDownload(content, filename, mimeType) {
   const blob = new Blob([content], { type: mimeType });
   const url  = URL.createObjectURL(blob);
@@ -19,9 +11,6 @@ function triggerDownload(content, filename, mimeType) {
   URL.revokeObjectURL(url);
 }
 
-/**
- * Export tasks as a CSV file.
- */
 export function exportCSV(tasks) {
   const headers = ['Title', 'Description', 'Status', 'Priority', 'Due Date', 'Created At'];
   const escape  = (val) => `"${String(val ?? '').replace(/"/g, '""')}"`;
@@ -39,20 +28,11 @@ export function exportCSV(tasks) {
   triggerDownload(csv, `tasks_export_${Date.now()}.csv`, 'text/csv;charset=utf-8;');
 }
 
-/**
- * Export tasks as a JSON file.
- */
 export function exportJSON(tasks) {
   const json = JSON.stringify(tasks, null, 2);
   triggerDownload(json, `tasks_export_${Date.now()}.json`, 'application/json');
 }
 
-// ─── Import ────────────────────────────────────────────────────────────────
-
-/**
- * Read a JSON file and resolve with a cleaned array of task objects.
- * Rejects if the file is not valid JSON or if items lack a `title` field.
- */
 export function importJSON(file) {
   return new Promise((resolve, reject) => {
     if (!file) return reject(new Error('No file provided'));

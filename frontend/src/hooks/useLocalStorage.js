@@ -1,12 +1,5 @@
 import { useState, useCallback } from 'react';
 
-/**
- * useLocalStorage — useState backed by localStorage for persistence across
- * page refreshes. Falls back gracefully if localStorage is unavailable.
- *
- * @param {string} key           — localStorage key
- * @param {*}      initialValue  — default value when key doesn't exist
- */
 export function useLocalStorage(key, initialValue) {
   const [storedValue, setStoredValue] = useState(() => {
     try {
