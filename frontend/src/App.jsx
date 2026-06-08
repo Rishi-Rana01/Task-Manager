@@ -39,8 +39,8 @@ function ToasterWithTheme() {
   const { isDark } = useTheme();
   return (
     <Toaster
-      position="top-right"
-      containerStyle={{ zIndex: 99999 }}
+      position="top-center"
+      containerStyle={{ zIndex: 999999, top: 40 }}
       toastOptions={{
         duration: 3500,
         style: {
