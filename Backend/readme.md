@@ -44,6 +44,22 @@ A robust, secure, and production-ready RESTful API backend for the **Task Manage
 
 ---
 
+### 📂 Day 4: Advanced Querying, Bulk Operations & Analytics API
+*   **Server-Side Pagination & Filtering (`GET /api/tasks`):**
+    *   Upgraded the retrieval endpoint to handle query parameters: `page`, `limit`, `status`, `priority`, and `search`.
+    *   Integrated robust `$regex` search querying and calculated offset constraints for scalable data loading.
+*   **Analytics Aggregation Pipeline (`GET /api/tasks/stats`):**
+    *   Engineered MongoDB aggregation pipelines to calculate metrics in a single database pass.
+    *   Retrieves clustered counts for status breakdowns, priority breakdowns, and 7-day trailing completion trends.
+*   **Bulk Operations API (`/api/tasks/bulk`):**
+    *   `DELETE /bulk`: Allows mass removal of task resources securely matched against user ownership constraints.
+    *   `PATCH /bulk`: Accepts partial payload updates (e.g., status or priority) applied synchronously across multiple task IDs.
+*   **Schema Enhancements:**
+    *   Expanded `Task` model with `priority` (low, medium, high) and `dueDate` capabilities.
+    *   Added compound indexing to optimize heavily queried fields.
+
+---
+
 ## 📂 Project Architecture & Directory Structure
 
 ```text

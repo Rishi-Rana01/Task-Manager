@@ -114,7 +114,7 @@ const TaskCard = memo(function TaskCard({ task, onToggle, onEdit, onDelete, isSe
         </div>
 
         {/* Hover actions */}
-        <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shrink-0">
+        <div className="flex flex-col gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200 shrink-0">
           <button
             onClick={() => onEdit(task)}
             title="Edit"

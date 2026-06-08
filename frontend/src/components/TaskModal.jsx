@@ -89,7 +89,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, editingTask }) {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Title */}
           <div>
-            <label className="block text-[10px] font-bold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--text-muted)' }}>
+            <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-muted)' }}>
               Title <span className="text-red-400">*</span>
             </label>
             <input
@@ -111,7 +111,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, editingTask }) {
 
           {/* Description */}
           <div>
-            <label className="block text-[10px] font-bold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--text-muted)' }}>
+            <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-muted)' }}>
               Description
             </label>
             <textarea
@@ -131,9 +131,9 @@ export default function TaskModal({ isOpen, onClose, onSubmit, editingTask }) {
           </div>
 
           {/* Priority + Due Date */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--text-muted)' }}>
+              <label className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-muted)' }}>
                 <Flag size={10} /> Priority
               </label>
               <select
@@ -153,7 +153,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, editingTask }) {
             </div>
 
             <div>
-              <label className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--text-muted)' }}>
+              <label className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-muted)' }}>
                 <Calendar size={10} /> Due Date
               </label>
               <input

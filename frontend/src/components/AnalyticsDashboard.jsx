@@ -56,7 +56,7 @@ function BarChartSVG({ data }) {
   const COLOR = { high: '#ef4444', medium: '#f59e0b', low: '#10b981' };
 
   return (
-    <svg width={WIDTH} height={HEIGHT + 24} viewBox={`0 0 ${WIDTH} ${HEIGHT + 24}`}>
+    <svg width="100%" height="auto" viewBox={`0 0 ${WIDTH} ${HEIGHT + 24}`} className="max-w-[200px]">
       {data.map((d, i) => {
         const barH = Math.max(4, (d.count / maxVal) * HEIGHT);
         const x    = gap + i * (barW + gap);
@@ -106,8 +106,8 @@ function TrendLine({ weeklyData }) {
   });
 
   return (
-    <div className="w-full">
-      <svg width={W} height={H + 20} viewBox={`0 0 ${W} ${H + 20}`} className="w-full">
+    <div className="w-full flex justify-center">
+      <svg width="100%" height="auto" viewBox={`0 0 ${W} ${H + 20}`} className="w-full max-w-[220px]">
         <defs>
           <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#6366f1" stopOpacity="0.3" />
