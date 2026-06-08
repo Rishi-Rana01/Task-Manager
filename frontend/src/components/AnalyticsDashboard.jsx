@@ -13,9 +13,9 @@ function PieChartSVG({ completed, pending }) {
   }
 
   const completedPct = completed / total;
-  const r            = 48;
-  const cx           = 60;
-  const cy           = 60;
+  const r = 48;
+  const cx = 60;
+  const cy = 60;
   const circumference = 2 * Math.PI * r;
   const completedDash = completedPct * circumference;
 
@@ -48,10 +48,10 @@ function PieChartSVG({ completed, pending }) {
 // ─── Mini Bar Chart ────────────────────────────────────────────────────────
 function BarChartSVG({ data }) {
   const maxVal = Math.max(...data.map(d => d.count), 1);
-  const WIDTH  = 200;
+  const WIDTH = 200;
   const HEIGHT = 80;
-  const barW   = 40;
-  const gap    = (WIDTH - data.length * barW) / (data.length + 1);
+  const barW = 40;
+  const gap = (WIDTH - data.length * barW) / (data.length + 1);
 
   const COLOR = { high: '#ef4444', medium: '#f59e0b', low: '#10b981' };
 
@@ -59,8 +59,8 @@ function BarChartSVG({ data }) {
     <svg width="100%" height="auto" viewBox={`0 0 ${WIDTH} ${HEIGHT + 24}`} className="max-w-[200px]">
       {data.map((d, i) => {
         const barH = Math.max(4, (d.count / maxVal) * HEIGHT);
-        const x    = gap + i * (barW + gap);
-        const y    = HEIGHT - barH;
+        const x = gap + i * (barW + gap);
+        const y = HEIGHT - barH;
         return (
           <g key={d.label}>
             <rect x={x} y={y} width={barW} height={barH}
@@ -156,15 +156,15 @@ function TrendLine({ weeklyData }) {
  */
 export default function AnalyticsDashboard({ tasks, stats, completedToday }) {
   const completed = useMemo(() => tasks.filter(t => t.status === 'completed').length, [tasks]);
-  const pending   = useMemo(() => tasks.filter(t => t.status === 'pending').length,   [tasks]);
+  const pending = useMemo(() => tasks.filter(t => t.status === 'pending').length, [tasks]);
 
   const priorityData = useMemo(() => {
     const map = { high: 0, medium: 0, low: 0 };
     tasks.forEach(t => { if (map[t.priority] !== undefined) map[t.priority]++; });
     return [
-      { label: 'high',   count: map.high   },
+      { label: 'high', count: map.high },
       { label: 'medium', count: map.medium },
-      { label: 'low',    count: map.low    },
+      { label: 'low', count: map.low },
     ];
   }, [tasks]);
 

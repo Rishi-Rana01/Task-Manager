@@ -31,7 +31,7 @@ const TaskCard = memo(function TaskCard({ task, onToggle, onEdit, onDelete, isSe
 
   return (
     <div
-      className={`task-card ${p.cardClass} animate-card-in rounded-2xl p-5 overflow-hidden
+      className={`group task-card ${p.cardClass} animate-card-in rounded-2xl p-5 overflow-hidden
         ${isCompleted ? 'opacity-70' : ''}
         ${isSelected ? 'ring-2 ring-offset-1 dark:ring-offset-slate-900' : ''}
       `}

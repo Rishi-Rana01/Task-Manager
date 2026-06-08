@@ -1,7 +1,13 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+const activeStyle = {
+  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+  color: '#fff',
+  boxShadow: '0 4px 12px rgba(99,102,241,0.35)',
+};
+
 export default function Pagination({ currentPage, totalPages, onGoTo, onNext, onPrev, totalItems, itemsPerPage }) {
-  if (totalPages <= 1) return null;
+  if (!totalPages || totalPages <= 1) return null;
 
   const getPages = () => {
     if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -16,8 +22,25 @@ export default function Pagination({ currentPage, totalPages, onGoTo, onNext, on
   const first = (currentPage - 1) * itemsPerPage + 1;
   const last  = Math.min(currentPage * itemsPerPage, totalItems);
 
+  const navBtnBase = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '36px',
+    height: '36px',
+    borderRadius: '10px',
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'background 0.15s, color 0.15s',
+    color: 'var(--text-muted)',
+    background: 'transparent',
+  };
+
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-5" style={{ borderTop: '1px solid var(--border)' }}>
+    <div
+      className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-5"
+      style={{ borderTop: '1px solid var(--border)' }}
+    >
       <p className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>
         <span className="font-semibold" style={{ color: 'var(--text)' }}>{first}–{last}</span>
         {' '}of{' '}
@@ -26,47 +49,52 @@ export default function Pagination({ currentPage, totalPages, onGoTo, onNext, on
       </p>
 
       <div className="flex items-center gap-1">
+        {/* Prev */}
         <button
           onClick={onPrev}
           disabled={currentPage === 1}
           aria-label="Previous page"
-          className="p-2 rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-          style={{ color: 'var(--text-muted)' }}
-          onMouseEnter={e => !e.currentTarget.disabled && (e.currentTarget.style.background = 'var(--surface-2)')}
-          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          style={{ ...navBtnBase, opacity: currentPage === 1 ? 0.3 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+          onMouseEnter={e => { if (currentPage !== 1) e.currentTarget.style.background = 'var(--surface-2)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
         >
           <ChevronLeft size={15} />
         </button>
 
+        {/* Page numbers */}
         {getPages().map((page, idx) =>
           page === '...' ? (
-            <span key={`e-${idx}`} className="w-9 text-center text-sm select-none" style={{ color: 'var(--text-muted)' }}>…</span>
+            <span
+              key={`e-${idx}`}
+              style={{ width: '36px', textAlign: 'center', fontSize: '14px', userSelect: 'none', color: 'var(--text-muted)' }}
+            >
+              …
+            </span>
           ) : (
             <button
               key={page}
               onClick={() => onGoTo(page)}
               aria-current={page === currentPage ? 'page' : undefined}
-              className="w-9 h-9 rounded-xl text-xs font-bold transition-all cursor-pointer"
               style={page === currentPage
-                ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', boxShadow: '0 4px 12px rgba(99,102,241,0.35)' }
-                : { color: 'var(--text-muted)' }
+                ? { ...navBtnBase, ...activeStyle }
+                : { ...navBtnBase }
               }
-              onMouseEnter={e => page !== currentPage && (e.currentTarget.style.background = 'var(--surface-2)')}
-              onMouseLeave={e => page !== currentPage && (e.currentTarget.style.background = 'transparent')}
+              onMouseEnter={e => { if (page !== currentPage) e.currentTarget.style.background = 'var(--surface-2)'; }}
+              onMouseLeave={e => { if (page !== currentPage) e.currentTarget.style.background = 'transparent'; }}
             >
-              {page}
+              <span style={{ fontSize: '12px', fontWeight: 700 }}>{page}</span>
             </button>
           )
         )}
 
+        {/* Next */}
         <button
           onClick={onNext}
           disabled={currentPage === totalPages}
           aria-label="Next page"
-          className="p-2 rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-          style={{ color: 'var(--text-muted)' }}
-          onMouseEnter={e => !e.currentTarget.disabled && (e.currentTarget.style.background = 'var(--surface-2)')}
-          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          style={{ ...navBtnBase, opacity: currentPage === totalPages ? 0.3 : 1, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
+          onMouseEnter={e => { if (currentPage !== totalPages) e.currentTarget.style.background = 'var(--surface-2)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
         >
           <ChevronRight size={15} />
         </button>
