@@ -13,9 +13,9 @@ import { exportCSV, exportJSON, importJSON } from '../utils/exportImport';
 import { getDeadlineAlerts, getCompletedTodayCount } from '../utils/deadlineHelpers';
 import toast from 'react-hot-toast';
 import {
-  LogOut, Plus, Search, Layers, ClipboardList, CheckCircle, Clock,
+  LogOut, Plus, Search, Zap, ClipboardList, CheckCircle2, Clock,
   Sun, Moon, BarChart2, Download, Upload, ChevronDown, AlertTriangle,
-  X as XIcon, Loader2,
+  X as XIcon, Loader2, Sparkles,
 } from 'lucide-react';
 
 const AnalyticsDashboard = lazy(() => import('../components/AnalyticsDashboard'));
@@ -31,32 +31,41 @@ function DeadlineBanners({ tasks }) {
       {alerts.slice(0, 3).map(({ task, urgency, label }) => (
         <div
           key={task._id}
-          className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium border ${
+          className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium border backdrop-blur-sm ${
             urgency === 'critical'
-              ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400'
+              ? 'bg-red-500/8 dark:bg-red-500/10 border-red-500/20 dark:border-red-500/30 text-red-600 dark:text-red-400 neon-pulse'
               : urgency === 'warning'
-              ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400'
-              : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400'
+              ? 'bg-amber-500/8 dark:bg-amber-500/10 border-amber-500/20 dark:border-amber-500/30 text-amber-600 dark:text-amber-400'
+              : 'bg-indigo-500/8 dark:bg-indigo-500/10 border-indigo-500/20 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-400'
           }`}
         >
-          <AlertTriangle size={15} className="shrink-0" />
+          <AlertTriangle size={14} className="shrink-0" />
           <span className="truncate font-semibold">{task.title}</span>
-          <span className="ml-auto shrink-0 text-xs">{label}</span>
+          <span className="ml-auto shrink-0 font-mono text-xs opacity-80">{label}</span>
         </div>
       ))}
     </div>
   );
 }
 
-function StatCard({ icon, label, value, colorClass }) {
+function StatCard({ icon, label, value, gradient, glowColor }) {
   return (
-    <div className="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 rounded-2xl p-5 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
-      <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${colorClass}`}>
-        {icon}
-      </div>
-      <div>
-        <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{label}</p>
-        <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-0.5">{value}</h3>
+    <div className="relative group rounded-2xl p-px overflow-hidden" style={{ background: gradient }}>
+      <div className="rounded-2xl p-5 h-full flex items-center gap-4" style={{ background: 'var(--surface)' }}>
+        <div
+          className="w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0"
+          style={{ background: gradient }}
+        >
+          {icon}
+        </div>
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400 dark:text-slate-500">{label}</p>
+          <p className="text-3xl font-black mt-0.5 gradient-text font-mono leading-none">{value}</p>
+        </div>
+        <div
+          className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+          style={{ boxShadow: `inset 0 0 40px ${glowColor}` }}
+        />
       </div>
     </div>
   );
@@ -112,7 +121,6 @@ export default function Dashboard() {
         ...(priorityFilter !== 'all' && { priority: priorityFilter }),
         ...(debouncedSearch           && { search:   debouncedSearch }),
       });
-
       const res = await axiosClient.get(`/tasks?${params}`);
       if (isMounted) {
         setTasks(res.data.data);
@@ -122,7 +130,7 @@ export default function Dashboard() {
     } catch (err) {
       if (isMounted) {
         console.error('[Dashboard] fetchTasks:', err);
-        toast.error('Failed to load tasks. Please try again.');
+        toast.error('Failed to load tasks.');
       }
     } finally {
       if (isMounted) setLoading(false);
@@ -178,7 +186,7 @@ export default function Dashboard() {
   }, [fetchTasks, fetchStats]);
 
   const handleDeleteTask = useCallback(async (id) => {
-    const toastId = toast.loading('Deleting task...');
+    const toastId = toast.loading('Deleting...');
     try {
       await axiosClient.delete(`/tasks/${id}`);
       toast.success('Task deleted.', { id: toastId });
@@ -186,20 +194,19 @@ export default function Dashboard() {
       fetchTasks();
       fetchStats();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to delete task.', { id: toastId });
+      toast.error(error.response?.data?.message || 'Failed to delete.', { id: toastId });
     }
   }, [fetchTasks, fetchStats]);
 
   const handleBulkDelete = useCallback(async () => {
     const ids = [...selectedIds];
-    if (ids.length === 0) return;
-    const toastId = toast.loading(`Deleting ${ids.length} task${ids.length > 1 ? 's' : ''}...`);
+    if (!ids.length) return;
+    const toastId = toast.loading(`Deleting ${ids.length} tasks...`);
     try {
       await axiosClient.delete('/tasks/bulk', { data: { ids } });
-      toast.success(`Deleted ${ids.length} task${ids.length > 1 ? 's' : ''}.`, { id: toastId });
+      toast.success(`Deleted ${ids.length} tasks.`, { id: toastId });
       setSelectedIds(new Set());
-      fetchTasks();
-      fetchStats();
+      fetchTasks(); fetchStats();
     } catch (error) {
       toast.error(error.response?.data?.message || 'Bulk delete failed.', { id: toastId });
     }
@@ -207,29 +214,24 @@ export default function Dashboard() {
 
   const handleBulkComplete = useCallback(async () => {
     const ids = [...selectedIds];
-    if (ids.length === 0) return;
+    if (!ids.length) return;
     try {
       await axiosClient.patch('/tasks/bulk', { ids, updates: { status: 'completed' } });
-      toast.success(`Marked ${ids.length} task${ids.length > 1 ? 's' : ''} complete.`);
+      toast.success(`Marked ${ids.length} tasks complete.`);
       setSelectedIds(new Set());
-      fetchTasks();
-      fetchStats();
-    } catch {
-      toast.error('Bulk update failed.');
-    }
+      fetchTasks(); fetchStats();
+    } catch { toast.error('Bulk update failed.'); }
   }, [selectedIds, fetchTasks, fetchStats]);
 
   const handleBulkPriority = useCallback(async (priority) => {
     const ids = [...selectedIds];
-    if (ids.length === 0) return;
+    if (!ids.length) return;
     try {
       await axiosClient.patch('/tasks/bulk', { ids, updates: { priority } });
-      toast.success(`Set "${priority}" priority on ${ids.length} task${ids.length > 1 ? 's' : ''}.`);
+      toast.success(`Set "${priority}" priority on ${ids.length} tasks.`);
       setSelectedIds(new Set());
       fetchTasks();
-    } catch {
-      toast.error('Bulk priority update failed.');
-    }
+    } catch { toast.error('Bulk priority update failed.'); }
   }, [selectedIds, fetchTasks]);
 
   const handleSelect = useCallback((id) => {
@@ -250,127 +252,138 @@ export default function Dashboard() {
     const file = e.target.files?.[0];
     if (!file) return;
     e.target.value = '';
-
     try {
       const imported = await importJSON(file);
       const toastId  = toast.loading(`Importing ${imported.length} tasks...`);
       let succeeded  = 0;
-
       for (const task of imported) {
-        try {
-          await axiosClient.post('/tasks', task);
-          succeeded++;
-        } catch { /* skip individual failures */ }
+        try { await axiosClient.post('/tasks', task); succeeded++; }
+        catch { /* skip individual failures */ }
       }
-
       toast.success(`Imported ${succeeded} of ${imported.length} tasks.`, { id: toastId });
-      fetchTasks();
-      fetchStats();
-    } catch (err) {
-      toast.error(err.message || 'Import failed.');
-    }
+      fetchTasks(); fetchStats();
+    } catch (err) { toast.error(err.message || 'Import failed.'); }
   }, [fetchTasks, fetchStats]);
 
   return (
-    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-900 transition-colors duration-300">
-
+    <div className="min-h-screen dot-grid transition-colors duration-300">
       <ConfettiOverlay show={showConfetti} onDone={() => setShowConfetti(false)} />
 
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-700/60 px-6 py-4">
+      {/* ── Header ─────────────────────────────────────────────────────── */}
+      <header className="glass sticky top-0 z-40 px-6 py-3.5">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/25">
-              <Layers size={19} />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center btn-primary text-white shadow-lg">
+              <Zap size={17} strokeWidth={2.5} />
             </div>
             <div>
-              <h1 className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-tight">Task Manager</h1>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                Hi, <span className="font-medium text-slate-600 dark:text-slate-300">{user?.name}</span>
+              <h1 className="text-sm font-black tracking-tight text-slate-800 dark:text-slate-100">
+                Task<span className="gradient-text">Flow</span>
+              </h1>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
+                @{user?.name?.toLowerCase().replace(/\s/g, '_')}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => setShowAnalytics(v => !v)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                 showAnalytics
-                  ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
-                  : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400'
+                  ? 'bg-indigo-500/10 dark:bg-indigo-400/10 text-indigo-600 dark:text-indigo-400 ring-1 ring-indigo-500/25'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
               }`}
             >
-              <BarChart2 size={15} />
+              <BarChart2 size={14} />
               <span className="hidden sm:inline">Analytics</span>
             </button>
 
             <div className="relative group">
-              <button className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer">
-                <Download size={15} />
+              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-all cursor-pointer">
+                <Download size={14} />
                 <span className="hidden sm:inline">Export</span>
-                <ChevronDown size={12} />
+                <ChevronDown size={11} />
               </button>
-              <div className="absolute right-0 top-full mt-1.5 hidden group-hover:flex flex-col bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden min-w-[130px] z-10">
-                <button onClick={handleExportCSV}  className="px-4 py-2.5 text-xs font-medium text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">Export CSV</button>
-                <button onClick={handleExportJSON} className="px-4 py-2.5 text-xs font-medium text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">Export JSON</button>
+              <div className="absolute right-0 top-full mt-2 hidden group-hover:flex flex-col min-w-[130px] z-20 rounded-xl overflow-hidden shadow-2xl ring-1 ring-black/5 dark:ring-white/10" style={{ background: 'var(--surface)' }}>
+                <button onClick={handleExportCSV}  className="px-4 py-2.5 text-xs font-medium text-left text-slate-700 dark:text-slate-300 hover:bg-indigo-500/5 transition-colors cursor-pointer">Export CSV</button>
+                <button onClick={handleExportJSON} className="px-4 py-2.5 text-xs font-medium text-left text-slate-700 dark:text-slate-300 hover:bg-indigo-500/5 transition-colors cursor-pointer">Export JSON</button>
               </div>
             </div>
 
             <button
               onClick={() => importInputRef.current?.click()}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-all cursor-pointer"
             >
-              <Upload size={15} />
+              <Upload size={14} />
               <span className="hidden sm:inline">Import</span>
             </button>
             <input ref={importInputRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
 
             <button
               onClick={toggleTheme}
-              aria-label="Toggle dark mode"
-              className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+              aria-label="Toggle theme"
+              className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-all cursor-pointer"
             >
-              {isDark ? <Sun size={17} /> : <Moon size={17} />}
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
+
+            <div className="w-px h-5 bg-slate-200 dark:bg-white/10 mx-1" />
 
             <button
               onClick={logout}
-              className="flex items-center gap-1.5 px-3 py-2 hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 transition-all cursor-pointer"
             >
-              <LogOut size={15} />
-              <span className="hidden sm:inline">Logout</span>
+              <LogOut size={14} />
+              <span className="hidden sm:inline">Sign out</span>
             </button>
           </div>
         </div>
       </header>
 
+      {/* ── Main ───────────────────────────────────────────────────────── */}
       <main className="max-w-7xl mx-auto px-6 py-8">
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+        {/* Welcome strip */}
+        <div className="flex items-center gap-2 mb-7">
+          <Sparkles size={14} className="text-indigo-400" />
+          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wide">
+            Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'},&nbsp;
+            <span className="gradient-text">{user?.name}</span>
+          </p>
+        </div>
+
+        {/* Stat cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <StatCard
-            icon={<ClipboardList size={22} />}
+            icon={<ClipboardList size={20} />}
             label="Total Tasks"
             value={totalCount}
-            colorClass="bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-400"
+            gradient="linear-gradient(135deg, #6366f1, #8b5cf6)"
+            glowColor="rgba(99,102,241,0.08)"
           />
           <StatCard
-            icon={<CheckCircle size={22} />}
+            icon={<CheckCircle2 size={20} />}
             label="Completed"
             value={completedCount}
-            colorClass="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 dark:text-emerald-400"
+            gradient="linear-gradient(135deg, #10b981, #06b6d4)"
+            glowColor="rgba(16,185,129,0.08)"
           />
           <StatCard
-            icon={<Clock size={22} />}
+            icon={<Clock size={20} />}
             label="Pending"
             value={pendingCount}
-            colorClass="bg-amber-50 dark:bg-amber-900/20 text-amber-500 dark:text-amber-400"
+            gradient="linear-gradient(135deg, #f59e0b, #f97316)"
+            glowColor="rgba(245,158,11,0.08)"
           />
         </div>
 
+        {/* Analytics panel */}
         {showAnalytics && (
-          <div className="animate-panel-expand">
+          <div className="animate-panel-expand mb-8">
             <Suspense fallback={
-              <div className="flex justify-center py-8">
-                <Loader2 size={24} className="animate-spin text-slate-400" />
+              <div className="flex justify-center py-10">
+                <Loader2 size={22} className="animate-spin text-indigo-400" />
               </div>
             }>
               <AnalyticsDashboard tasks={tasks} stats={stats} completedToday={completedToday} />
@@ -380,38 +393,46 @@ export default function Dashboard() {
 
         <DeadlineBanners tasks={tasks} />
 
-        <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between mb-6 bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 rounded-2xl p-4 shadow-sm">
+        {/* Toolbar */}
+        <div
+          className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between mb-6 rounded-2xl p-4 glow-surface"
+          style={{ background: 'var(--surface)' }}
+        >
           <div className="relative flex-1 max-w-sm">
-            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               id="task-search"
               placeholder="Search tasks..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full pl-10 pr-9 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white dark:focus:bg-slate-800 transition-all duration-150"
+              className="w-full pl-9 pr-8 py-2.5 rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none transition-all duration-200"
+              style={{
+                background: 'var(--surface-2)',
+                border: '1px solid var(--border)',
+              }}
+              onFocus={e => e.target.style.borderColor = 'var(--accent)'}
+              onBlur={e => e.target.style.borderColor = 'var(--border)'}
             />
             {searchInput && (
-              <button
-                onClick={() => setSearchInput('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"
-              >
-                <XIcon size={14} />
+              <button onClick={() => setSearchInput('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer">
+                <XIcon size={13} />
               </button>
             )}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex bg-slate-100 dark:bg-slate-700/50 p-1 rounded-xl border border-slate-200/40 dark:border-slate-600/40">
+            <div className="flex p-0.5 rounded-xl gap-0.5" style={{ background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
               {['all', 'pending', 'completed'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setStatusFilter(tab)}
                   className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold capitalize tracking-wide transition-all cursor-pointer ${
                     statusFilter === tab
-                      ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm'
+                      ? 'text-white shadow-sm'
                       : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                   }`}
+                  style={statusFilter === tab ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' } : {}}
                 >
                   {tab}
                 </button>
@@ -421,7 +442,8 @@ export default function Dashboard() {
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
-              className="px-3 py-2 bg-slate-100 dark:bg-slate-700/50 border border-slate-200/40 dark:border-slate-600/40 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 focus:outline-none focus:border-blue-500 cursor-pointer"
+              className="px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 focus:outline-none cursor-pointer"
+              style={{ background: 'var(--surface-2)', border: '1px solid var(--border)' }}
             >
               <option value="all">All Priority</option>
               <option value="high">🔴 High</option>
@@ -431,33 +453,37 @@ export default function Dashboard() {
 
             <button
               onClick={openCreateModal}
-              className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-md shadow-blue-600/20 transition-all active:scale-[0.98] cursor-pointer"
+              className="btn-primary flex items-center gap-2 px-4 py-2.5 text-white font-semibold text-xs rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-[0.97] cursor-pointer"
             >
-              <Plus size={15} />
-              Add Task
+              <Plus size={15} strokeWidth={2.5} />
+              New Task
             </button>
           </div>
         </div>
 
+        {/* Task grid */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <Loader2 size={32} className="animate-spin text-blue-500" />
+          <div className="flex flex-col items-center justify-center py-28 gap-4">
+            <div className="w-10 h-10 rounded-2xl btn-primary flex items-center justify-center">
+              <Loader2 size={20} className="animate-spin text-white" />
+            </div>
             <p className="text-sm text-slate-400 dark:text-slate-500 font-medium">Loading tasks...</p>
           </div>
         ) : tasks.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {tasks.map(task => (
-                <TaskCard
-                  key={task._id}
-                  task={task}
-                  onToggle={handleToggleStatus}
-                  onEdit={openEditModal}
-                  onDelete={handleDeleteTask}
-                  isSelected={selectedIds.has(task._id)}
-                  onSelect={handleSelect}
-                  selectionMode={selectionMode}
-                />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {tasks.map((task, i) => (
+                <div key={task._id} style={{ animationDelay: `${i * 40}ms` }}>
+                  <TaskCard
+                    task={task}
+                    onToggle={handleToggleStatus}
+                    onEdit={openEditModal}
+                    onDelete={handleDeleteTask}
+                    isSelected={selectedIds.has(task._id)}
+                    onSelect={handleSelect}
+                    selectionMode={selectionMode}
+                  />
+                </div>
               ))}
             </div>
             <Pagination
@@ -471,21 +497,24 @@ export default function Dashboard() {
             />
           </>
         ) : (
-          <div className="bg-white dark:bg-slate-800 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl py-20 px-4 text-center max-w-md mx-auto mt-6">
-            <div className="w-14 h-14 bg-slate-100 dark:bg-slate-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <ClipboardList size={24} className="text-slate-400" />
+          <div
+            className="rounded-2xl py-20 px-4 text-center max-w-sm mx-auto mt-4 glow-surface"
+            style={{ background: 'var(--surface)' }}
+          >
+            <div className="w-16 h-16 rounded-2xl btn-primary flex items-center justify-center mx-auto mb-5 opacity-60">
+              <ClipboardList size={26} className="text-white" />
             </div>
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">No tasks found</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5 max-w-xs mx-auto">
+            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">No tasks found</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5 max-w-xs mx-auto leading-relaxed">
               {searchInput || statusFilter !== 'all' || priorityFilter !== 'all'
                 ? 'Try clearing your filters or search query.'
                 : 'Create your first task to get started.'}
             </p>
             <button
               onClick={openCreateModal}
-              className="mt-5 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:underline cursor-pointer"
+              className="mt-5 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl btn-primary text-white shadow-md shadow-indigo-500/20 cursor-pointer transition-all"
             >
-              <Plus size={14} />
+              <Plus size={13} />
               Create a task
             </button>
           </div>
