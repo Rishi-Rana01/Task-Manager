@@ -130,4 +130,24 @@ To run the entire TaskFlow application locally, you will need to start both the 
 
 ---
 
+## 🌍 Deployment Setup
+
+TaskFlow is designed to be easily deployable to modern cloud platforms. 
+
+### Backend Deployment (e.g., Render, Railway, Heroku)
+1. **Platform**: We recommend **Render** as a free and easy hosting solution for the Node.js backend.
+2. **Setup**: Create a new Web Service on Render and connect your GitHub repository.
+3. **Build Command**: `npm install`
+4. **Start Command**: `npm start`
+5. **Environment Variables**: Add your `.env` variables (`PORT`, `MONGO_URI`, `JWT_SECRET`, `NODE_ENV=production`, `FRONTEND_URL`) to your hosting provider's dashboard.
+
+### Frontend Deployment (e.g., Vercel, Netlify)
+1. **Platform**: We recommend **Vercel** for hosting the React Vite application.
+2. **Setup**: Import your project into Vercel and set the Root Directory to `frontend`.
+3. **Framework Preset**: Vercel will automatically detect **Vite**.
+4. **Environment Variables**: Set `VITE_API_BASE_URL` to your newly deployed Backend URL (e.g., `https://your-backend-url.onrender.com/api`).
+5. **Routing**: The `frontend/vercel.json` file is already configured to handle React Router client-side routing on Vercel.
+
+---
+
 *For deeper architectural details, please refer to the individual `README.md` files located inside the `frontend/` and `Backend/` directories.*
