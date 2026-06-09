@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from 'react';
+import PageLoader from '../components/PageLoader';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import axiosClient from '../api/axiosClient';
@@ -94,6 +95,7 @@ export default function Dashboard() {
   const [showConfetti,  setShowConfetti]  = useState(false);
   const prevPendingRef  = useRef(0);
   const importInputRef  = useRef(null);
+  const initialLoadRef  = useRef(true);
 
   const completedToday = useMemo(() => getCompletedTodayCount(tasks), [tasks]);
   const totalCount     = totalItems;
@@ -133,7 +135,10 @@ export default function Dashboard() {
         toast.error('Failed to load tasks.');
       }
     } finally {
-      if (isMounted) setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+        initialLoadRef.current = false;
+      }
     }
     return () => { isMounted = false; };
   }, [currentPage, statusFilter, priorityFilter, debouncedSearch, setTotalPages]);
@@ -264,6 +269,12 @@ export default function Dashboard() {
       fetchTasks(); fetchStats();
     } catch (err) { toast.error(err.message || 'Import failed.'); }
   }, [fetchTasks, fetchStats]);
+
+  // Show full-page branded loader on first mount until data arrives
+  // eslint-disable-next-line react-hooks/refs
+  if (initialLoadRef.current && loading) {
+    return <PageLoader />;
+  }
 
   return (
     <div className="min-h-screen dot-grid transition-colors duration-300">
